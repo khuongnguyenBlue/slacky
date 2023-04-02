@@ -1,0 +1,116 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextIndex"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    Int    @id @default(autoincrement())
+  email String @unique
+
+  WorkspaceMembers WorkspaceMember[]
+  ChannelMembers   ChannelMember[]
+  OwnChannels      Channel[]
+  Messages         Message[]
+  ThreadMessages   ThreadMessage[]
+
+  @@map(name: "users")
+}
+
+model Workspace {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+
+  WorkspaceMembers WorkspaceMember[]
+  Channels         Channel[]
+
+  @@map(name: "workspaces")
+}
+
+model WorkspaceMember {
+  workspaceId Int
+  userId      Int
+  userCode    String   @unique
+  username    String
+  createdAt   DateTime @default(now())
+
+  Workspace Workspace @relation(fields: [workspaceId], references: [id])
+  User      User      @relation(fields: [userId], references: [id])
+
+  @@unique([workspaceId, userId])
+  @@fulltext([username])
+  @@map(name: "workspaceMembers")
+}
+
+model Channel {
+  id          Int         @id @default(autoincrement())
+  workspaceId Int
+  creatorId   Int
+  name        String
+  type        ChannelType
+  archived    Boolean     @default(false)
+  description String
+  createdAt   DateTime    @default(now())
+
+  Creator   User            @relation(fields: [creatorId], references: [id])
+  Members   ChannelMember[]
+  Workspace Workspace       @relation(fields: [workspaceId], references: [id])
+  Messages  Message[]
+
+  @@fulltext([name])
+  @@map(name: "channels")
+}
+
+model ChannelMember {
+  channelId Int
+  userId    Int
+
+  Channel Channel @relation(fields: [channelId], references: [id])
+  User    User    @relation(fields: [userId], references: [id])
+
+  @@unique([channelId, userId])
+  @@map(name: "channelMembers")
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  channelId Int
+  content   String
+  createdAt DateTime @default(now())
+
+  User           User            @relation(fields: [userId], references: [id])
+  Channel        Channel         @relation(fields: [channelId], references: [id])
+  ThreadMessages ThreadMessage[]
+
+  @@index([channelId, createdAt])
+  @@map(name: "messages")
+}
+
+model ThreadMessage {
+  id        Int      @id @default(autoincrement())
+  threadId  Int
+  userId    Int
+  content   String
+  createdAt DateTime @default(now())
+
+  Thread Message @relation(fields: [threadId], references: [id])
+  User   User    @relation(fields: [userId], references: [id])
+
+  @@index([threadId, createdAt])
+  @@map(name: "threadMessages")
+}
+
+enum ChannelType {
+  PUBLIC
+  PRIVATE
+  DIRECT_MESSAGE
+}
