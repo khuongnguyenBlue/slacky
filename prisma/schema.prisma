@@ -4,7 +4,7 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["fullTextIndex"]
-  binaryTargets = ["native", "linux-arm64-openssl-1.1.x", "linux-musl-arm64-openssl-3.0.x"]
+  binaryTargets   = ["native", "linux-arm64-openssl-1.1.x", "linux-musl-arm64-openssl-3.0.x"]
 }
 
 datasource db {
@@ -55,7 +55,7 @@ model Channel {
   id          Int         @id @default(autoincrement())
   workspaceId Int
   creatorId   Int
-  name        String
+  name        String      @unique
   type        ChannelType
   archived    Boolean     @default(false)
   description String

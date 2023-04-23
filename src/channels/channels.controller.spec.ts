@@ -3,11 +3,13 @@ import { ChannelsController } from './channels.controller';
 import { ChannelsService } from './channels.service';
 import { UserContext } from 'src/global/contexts/user.context';
 import { ChannelType } from '@prisma/client';
+import { CreateChannelDto } from './channels.dtos';
 
 describe('ChannelsController', () => {
   let controller: ChannelsController;
   const service = {
     findChannelsByMemberId: jest.fn(),
+    createChannel: jest.fn(),
   };
   const userId = 1;
   const context = {
@@ -63,6 +65,37 @@ describe('ChannelsController', () => {
         const result = await controller.getUserChannels();
         expect(service.findChannelsByMemberId).toBeCalledWith(userId);
         expect(result.channels).toEqual(mockChannels);
+      });
+    });
+  });
+
+  describe('createChannel', () => {
+    describe('happy case', () => {
+      const body: CreateChannelDto = {
+        workspaceId: 1,
+        name: 'learning',
+        type: 'PUBLIC',
+      };
+
+      const mockChannel = {
+        id: 1,
+        workspaceId: 1,
+        creatorId: 1,
+        name: 'general',
+        type: ChannelType.PUBLIC,
+        archived: false,
+        description: 'Non quia ut quas.',
+        createdAt: new Date(),
+      };
+
+      beforeEach(() => {
+        service.createChannel.mockResolvedValue(mockChannel);
+      });
+
+      it('should call service to create channel', async () => {
+        const result = await controller.createChannel(body);
+        expect(service.createChannel).toBeCalledWith(userId, body);
+        expect(result).toEqual({ channel: mockChannel });
       });
     });
   });
