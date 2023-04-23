@@ -3,31 +3,7 @@ import { PrismaService } from './prisma.service';
 
 @Global()
 @Module({
-  providers: [
-    {
-      provide: PrismaService,
-      useValue: new PrismaService({
-        log: [
-          {
-            emit: 'stdout',
-            level: 'query',
-          },
-          {
-            emit: 'stdout',
-            level: 'error',
-          },
-          {
-            emit: 'stdout',
-            level: 'info',
-          },
-          {
-            emit: 'stdout',
-            level: 'warn',
-          },
-        ],
-      }),
-    },
-  ],
+  providers: [PrismaService],
   exports: [PrismaService],
 })
 export class PrismaModule {}
