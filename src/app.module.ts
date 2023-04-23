@@ -6,9 +6,20 @@ import { SeederModule } from './seeder/seeder.module';
 import { ChannelsModule } from './channels/channels.module';
 import { ClientTokenMiddleware } from './middlewares/client-token.middleware';
 import { GlobalModule } from './global/global.module';
+import { ConfigModule } from '@nestjs/config';
+import configuration from './config/configuration';
 
 @Module({
-  imports: [PrismaModule, SeederModule, ChannelsModule, GlobalModule],
+  imports: [
+    PrismaModule,
+    SeederModule,
+    ChannelsModule,
+    GlobalModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+    }),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slacky-dep
+  labels:
+    app: slacky
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: slacky
+  template:
+    metadata:
+      labels:
+        app: slacky
+    spec:
+      containers:
+        - name: slacky-container
+          image: blakruby/slacky:v1.3
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: slacky-cm
+                  key: port
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: slacky-cm
+                  key: db.host
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: slacky-cm
+                  key: db.port
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: slacky-cm
+                  key: db.name
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: slacky-cm
+                  key: db.user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: slacky-sc
+                  key: db.password
