@@ -64,7 +64,7 @@ describe('ChannelsController', () => {
       it('should find channels by user id and return the list', async () => {
         const result = await controller.getUserChannels();
         expect(service.findChannelsByMemberId).toBeCalledWith(userId);
-        expect(result.channels).toEqual(mockChannels);
+        expect(result).toEqual(mockChannels);
       });
     });
   });
@@ -95,7 +95,7 @@ describe('ChannelsController', () => {
       it('should call service to create channel', async () => {
         const result = await controller.createChannel(body);
         expect(service.createChannel).toBeCalledWith(userId, body);
-        expect(result).toEqual({ channel: mockChannel });
+        expect(result).toEqual(mockChannel);
       });
     });
   });

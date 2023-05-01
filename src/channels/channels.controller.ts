@@ -14,13 +14,13 @@ export class ChannelsController {
   async getUserChannels() {
     const userId = this.userContext.getUserId();
     const channels = await this.channelsService.findChannelsByMemberId(userId);
-    return { channels };
+    return channels;
   }
 
   @Post()
   async createChannel(@Body() body: CreateChannelDto) {
     const userId = this.userContext.getUserId();
     const channel = await this.channelsService.createChannel(userId, body);
-    return { channel };
+    return channel;
   }
 }
