@@ -11,6 +11,9 @@ export default () => {
     db: {
       url: connectionString,
     },
+    jwt: {
+      secret: process.env.JWT_SECRET,
+    },
   };
 };
 
