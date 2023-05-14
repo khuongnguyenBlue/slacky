@@ -1,9 +1,14 @@
-import { Global, Module } from '@nestjs/common';
-import { UserContext } from './contexts/user.context';
+import { DynamicModule, Global, Module } from '@nestjs/common';
+import { UserContext } from './user-context';
 
 @Global()
-@Module({
-  exports: [UserContext],
-  providers: [UserContext],
-})
-export class GlobalModule {}
+@Module({})
+export class GlobalModule {
+  static forRoot(): DynamicModule {
+    return {
+      module: GlobalModule,
+      providers: [UserContext],
+      exports: [UserContext],
+    };
+  }
+}

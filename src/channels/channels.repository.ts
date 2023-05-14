@@ -7,9 +7,12 @@ import { CreateChannelDto } from './channels.dtos';
 export class ChannelsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findChannelsByMemberId(memberId: number): Promise<Channel[]> {
+  findChannelsByUser(
+    memberId: number,
+    workspaceId: number,
+  ): Promise<Channel[]> {
     return this.prisma.channel.findMany({
-      where: { Members: { some: { userId: memberId } } },
+      where: { workspaceId, Members: { some: { userId: memberId } } },
     });
   }
 

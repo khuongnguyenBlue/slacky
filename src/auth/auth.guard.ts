@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   CanActivate,
   ExecutionContext,
   Injectable,
@@ -9,6 +10,9 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { IS_PUBLIC_KEY } from 'src/decorators/is-public.decorator';
+import { JwtPayload } from './auth.dtos';
+import { UserContext } from '../global/user-context';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -16,6 +20,8 @@ export class AuthGuard implements CanActivate {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly reflector: Reflector,
+    private readonly userContext: UserContext,
+    private readonly prisma: PrismaService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -25,21 +31,42 @@ export class AuthGuard implements CanActivate {
     ]);
 
     if (isPublic) {
-      // 💡 See this condition
       return true;
     }
 
     const request = context.switchToHttp().getRequest();
+    const memberCode = request.params.memberCode;
+
     const token = this.extractTokenFromRequest(request);
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    if (!memberCode) {
+      throw new BadRequestException('Missing member code');
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
+      const workspaceMember = await this.prisma.workspaceMember.findUnique({
+        where: {
+          userCode: memberCode,
+        },
+      });
+
+      if (!workspaceMember) {
+        throw new BadRequestException('Invalid member code');
+      }
+
+      const payload: JwtPayload = await this.jwtService.verifyAsync(token, {
         secret: this.configService.get('jwt.secret'),
       });
-      request.user = payload;
+
+      if (payload.sub !== workspaceMember.userId) {
+        throw new UnauthorizedException('Invalid token');
+      }
+
+      this.userContext.setWorkspaceId(workspaceMember.workspaceId);
+      this.userContext.setJwtPayload(payload);
     } catch (error) {
       throw new UnauthorizedException();
     }

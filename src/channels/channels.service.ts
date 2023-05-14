@@ -6,9 +6,10 @@ import { CreateChannelDto } from './channels.dtos';
 export class ChannelsService {
   constructor(private readonly channelsRepository: ChannelsRepository) {}
 
-  async findChannelsByMemberId(memberId: number) {
-    const channels = await this.channelsRepository.findChannelsByMemberId(
+  async findChannelsByUser(memberId: number, workspaceId: number) {
+    const channels = await this.channelsRepository.findChannelsByUser(
       memberId,
+      workspaceId,
     );
 
     return channels;
