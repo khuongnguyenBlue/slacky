@@ -8,11 +8,12 @@ import { BadRequestException } from '@nestjs/common';
 describe('ChannelsService', () => {
   let service: ChannelsService;
   const repository = {
-    findChannelsByMemberId: jest.fn(),
+    findChannelsByUser: jest.fn(),
     findChannelByName: jest.fn(),
     createChannel: jest.fn(),
   };
   const userId = 1;
+  const workspaceId = 1;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -29,7 +30,7 @@ describe('ChannelsService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('findChannelsByMemberId', () => {
+  describe('findChannelsByUser', () => {
     describe('happy case', () => {
       const mockChannels = [
         {
@@ -55,12 +56,15 @@ describe('ChannelsService', () => {
       ];
 
       beforeEach(() => {
-        repository.findChannelsByMemberId.mockResolvedValue(mockChannels);
+        repository.findChannelsByUser.mockResolvedValue(mockChannels);
       });
 
       it('should find channels by member id and return the list', async () => {
-        const result = await service.findChannelsByMemberId(userId);
-        expect(repository.findChannelsByMemberId).toBeCalledWith(userId);
+        const result = await service.findChannelsByUser(userId, workspaceId);
+        expect(repository.findChannelsByUser).toBeCalledWith(
+          userId,
+          workspaceId,
+        );
         expect(result).toEqual(mockChannels);
       });
     });

@@ -6,3 +6,8 @@ export class LoginDto {
   @IsString()
   password: string;
 }
+
+export interface JwtPayload {
+  sub: number;
+  email: string;
+}

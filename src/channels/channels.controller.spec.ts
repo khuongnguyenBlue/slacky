@@ -1,27 +1,32 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ChannelsController } from './channels.controller';
 import { ChannelsService } from './channels.service';
-import { UserContext } from 'src/global/contexts/user.context';
 import { ChannelType } from '@prisma/client';
 import { CreateChannelDto } from './channels.dtos';
+import { UserContext } from 'src/global/user-context';
 
 describe('ChannelsController', () => {
   let controller: ChannelsController;
   const service = {
-    findChannelsByMemberId: jest.fn(),
+    findChannelsByUser: jest.fn(),
     createChannel: jest.fn(),
   };
   const userId = 1;
-  const context = {
-    getUserId: () => userId,
+  const workspaceId = 1;
+  const userContext = {
+    getJwtPayload: jest.fn(),
+    getWorkspaceId: jest.fn(),
   };
 
   beforeEach(async () => {
+    userContext.getJwtPayload.mockReturnValue({ sub: userId });
+    userContext.getWorkspaceId.mockReturnValue(workspaceId);
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ChannelsController],
       providers: [
         { provide: ChannelsService, useValue: service },
-        { provide: UserContext, useValue: context },
+        { provide: UserContext, useValue: userContext },
       ],
     }).compile();
 
@@ -58,12 +63,12 @@ describe('ChannelsController', () => {
       ];
 
       beforeEach(() => {
-        service.findChannelsByMemberId.mockResolvedValue(mockChannels);
+        service.findChannelsByUser.mockResolvedValue(mockChannels);
       });
 
       it('should find channels by user id and return the list', async () => {
         const result = await controller.getUserChannels();
-        expect(service.findChannelsByMemberId).toBeCalledWith(userId);
+        expect(service.findChannelsByUser).toBeCalledWith(userId, workspaceId);
         expect(result).toEqual(mockChannels);
       });
     });

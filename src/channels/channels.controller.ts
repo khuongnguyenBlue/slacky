@@ -1,9 +1,15 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { UserContext } from 'src/global/contexts/user.context';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  Post,
+} from '@nestjs/common';
 import { ChannelsService } from './channels.service';
 import { CreateChannelDto } from './channels.dtos';
+import { UserContext } from 'src/global/user-context';
 
-@Controller(':clientToken/channels')
+@Controller(':memberCode/channels')
 export class ChannelsController {
   constructor(
     private readonly userContext: UserContext,
@@ -12,15 +18,29 @@ export class ChannelsController {
 
   @Get()
   async getUserChannels() {
-    const userId = this.userContext.getUserId();
-    const channels = await this.channelsService.findChannelsByMemberId(userId);
+    const jwtPayload = this.userContext.getJwtPayload();
+    const workspaceId = this.userContext.getWorkspaceId();
+    const channels = await this.channelsService.findChannelsByUser(
+      jwtPayload.sub,
+      workspaceId,
+    );
     return channels;
   }
 
   @Post()
   async createChannel(@Body() body: CreateChannelDto) {
-    const userId = this.userContext.getUserId();
-    const channel = await this.channelsService.createChannel(userId, body);
+    const jwtPayload = this.userContext.getJwtPayload();
+    const workspaceId = this.userContext.getWorkspaceId();
+    console.log('workspaceId', workspaceId);
+    console.log('body', body);
+    if (body.workspaceId !== workspaceId) {
+      throw new ForbiddenException('Unauthorized workspace');
+    }
+
+    const channel = await this.channelsService.createChannel(
+      jwtPayload.sub,
+      body,
+    );
     return channel;
   }
 }
