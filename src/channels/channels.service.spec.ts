@@ -4,7 +4,6 @@ import { ChannelsRepository } from './channels.repository';
 import { ChannelType } from '@prisma/client';
 import { CreateChannelDto } from './channels.dtos';
 import { BadRequestException } from '@nestjs/common';
-import { rejects } from 'assert';
 
 describe('ChannelsService', () => {
   let service: ChannelsService;
