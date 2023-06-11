@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Channel } from '@prisma/client';
+import { Channel, ChannelMember } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateChannelDto } from './channels.dtos';
 
@@ -38,6 +38,15 @@ export class ChannelsRepository {
           ],
         },
       },
+    });
+  }
+
+  async findMemberByChannelAndUser(
+    channelId: number,
+    userId: number,
+  ): Promise<ChannelMember> {
+    return await this.prisma.channelMember.findFirst({
+      where: { channelId, userId },
     });
   }
 }

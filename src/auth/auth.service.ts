@@ -13,7 +13,7 @@ export class AuthService {
   async signIn(email: string, password: string) {
     const user = await this.usersService.findUserByEmail(email);
     // TODO: hash password
-    if (!user || '123' !== password) {
+    if (!user || '123456' !== password) {
       throw new UnauthorizedException('Invalid email or password');
     }
 

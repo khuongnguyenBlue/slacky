@@ -31,8 +31,7 @@ export class ChannelsController {
   async createChannel(@Body() body: CreateChannelDto) {
     const jwtPayload = this.userContext.getJwtPayload();
     const workspaceId = this.userContext.getWorkspaceId();
-    console.log('workspaceId', workspaceId);
-    console.log('body', body);
+
     if (body.workspaceId !== workspaceId) {
       throw new ForbiddenException('Unauthorized workspace');
     }

@@ -30,4 +30,11 @@ export class ChannelsService {
 
     return newChannel;
   }
+
+  async findMemberByChannelAndUser(channelId: number, userId: number) {
+    return await this.channelsRepository.findMemberByChannelAndUser(
+      channelId,
+      userId,
+    );
+  }
 }
